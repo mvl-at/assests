@@ -19,18 +19,27 @@ func run() {
 
 //Registers all http routes.
 func routes() {
-	http.HandleFunc("/member/", member)
+	http.HandleFunc("/member/", picture(memberPictureType))
+	http.HandleFunc("/title", picture(titlePictureType))
 }
 
-func member(rw http.ResponseWriter, r *http.Request) {
-	if r.Method == http.MethodGet {
-		picture, err := find(memberPictureType, r.URL)
-		defer picture.Close()
-		if err != nil {
-			rw.WriteHeader(http.StatusNotFound)
-			errLogger.Println(err.Error())
+//Modifies the http header for use with REST.
+func picture(at assetType) http.HandlerFunc {
+	return func(writer http.ResponseWriter, request *http.Request) {
+		if request.Method == http.MethodOptions {
+			writer.Header().Set("Access-Control-Allow-Methods", "GET,POST,PUT,DELETE,OPTIONS")
+			writer.Header().Set("Access-Control-Allow-Headers", "access-token,content-type")
 			return
 		}
-		io.Copy(rw, picture)
+
+		if request.Method == http.MethodGet {
+			picture, err := find(at, request.URL)
+			defer picture.Close()
+			if err != nil {
+				writer.WriteHeader(http.StatusNotFound)
+				return
+			}
+			io.Copy(writer, picture)
+		}
 	}
 }

@@ -9,8 +9,10 @@ import (
 )
 
 const (
-	ConfigPath        = "conf.json"
-	memberPictureType = 1
+	ConfigPath         = "conf.json"
+	memberPictureType  = 1
+	titlePictureType   = 2
+	faviconPictureType = 3
 )
 
 var logger = log.New(os.Stdout, "", log.Ldate|log.Ltime)
@@ -31,7 +33,7 @@ func config() (conf *Configuration) {
 		rand.Read(jwtSecret)
 		conf = &Configuration{
 			Host:     "0.0.0.0",
-			Port:     8082,
+			Port:     7302,
 			RestHost: "127.0.0.1:8080"}
 		enc := json.NewEncoder(fil)
 		enc.SetIndent("", "  ")
