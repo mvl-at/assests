@@ -1,0 +1,37 @@
+:author: Richard Stöckl
+:icons: font
+
+ifdef::env-github[]
+:tip-caption: :bulb:
+:note-caption: :information_source:
+:important-caption: :heavy_exclamation_mark:
+:caution-caption: :fire:
+:warning-caption: :warning:
+endif::[]
+
+= Assets
+
+This is a simple assets server for the Musikverein Leopoldsdorf infrastructure.
+It is desinged as lightweight application for delivering images and making rest request for permissions only. 
+
+== Features
+
+Fetching images from the server.
+
+=== Work in progress
+
+* upload images
+* implement authentication
+
+=== Future Features
+
+== Installation
+
+[source, bash]
+----
+go get github.com/mvl-at/assets
+----
+
+WARNING: Since it is only required to run this application on Linux, it will not be tested on any ther platform.
+
+NOTE: Currently, this repository is only hosted on GitHub but it is planned that the platform will change to an internal Gitea instance.
