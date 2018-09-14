@@ -65,10 +65,13 @@ func picture(at assetType) http.HandlerFunc {
 					path = "title"
 				}
 
-				file, err := os.Open(fmt.Sprintf("%s/%s", directory, path))
+				file, err := os.OpenFile(fmt.Sprintf("%s/%s", directory, path), os.O_RDWR|os.O_CREATE, 0666)
 				if err != nil {
-					io.Copy(file, request.Body)
+					errLogger.Println(err.Error())
+					return
 				}
+				defer file.Close()
+				io.Copy(file, request.Body)
 			}
 		}
 	}
@@ -95,7 +98,7 @@ func fetchRoles(jwt string) []model.Role {
 		return make([]model.Role, 0)
 	}
 
-	var userInfo *UserInfo
+	userInfo := &UserInfo{}
 	decoder := json.NewDecoder(response.Body)
 	decoder.Decode(userInfo)
 	return userInfo.Roles
