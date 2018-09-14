@@ -1,12 +1,12 @@
 package assets
 
 import (
+	"encoding/json"
 	"fmt"
+	"github.com/mvl-at/model"
 	"io"
 	"net/http"
 	"os"
-	"encoding/json"
-	"rest/model"
 	"strings"
 )
 
