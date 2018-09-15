@@ -32,10 +32,11 @@ func config() (conf *Configuration) {
 		jwtSecret := make([]byte, 8)
 		rand.Read(jwtSecret)
 		conf = &Configuration{
-			Host:      "0.0.0.0",
-			Port:      7302,
-			RestHost:  "http://127.0.0.1:8080",
-			TitleRole: "title"}
+			Host:       "0.0.0.0",
+			Port:       7302,
+			RestHost:   "http://127.0.0.1:8080",
+			TitleRole:  "title",
+			MemberRole: "member"}
 		enc := json.NewEncoder(fil)
 		enc.SetIndent("", "  ")
 		err = enc.Encode(conf)
@@ -52,10 +53,11 @@ func config() (conf *Configuration) {
 
 //Struct which holds the configuration.
 type Configuration struct {
-	Host      string `json:"host"`
-	Port      uint16 `json:"port"`
-	RestHost  string `json:"restHost"`
-	TitleRole string `json:"titleRole"`
+	Host       string `json:"host"`
+	Port       uint16 `json:"port"`
+	RestHost   string `json:"restHost"`
+	TitleRole  string `json:"titleRole"`
+	MemberRole string `json:"memberRole"`
 }
 
 type assetType int64

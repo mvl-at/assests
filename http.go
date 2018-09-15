@@ -55,14 +55,21 @@ func picture(at assetType) http.HandlerFunc {
 				var directory string
 				var path string
 
-				if at == memberPictureType {
-					directory = "."
-					path = request.URL.Path
-				}
-
-				if at == titlePictureType {
-					directory = "."
-					path = "title"
+				switch at {
+				case memberPictureType:
+					if hasRole(fetchRoles(jwt), conf.MemberRole) {
+						directory = "."
+						path = request.URL.Path
+					}
+					break
+				case titlePictureType:
+					if hasRole(fetchRoles(jwt), conf.TitleRole) {
+						directory = "."
+						path = "title"
+					}
+					break
+				default:
+					writer.WriteHeader(http.StatusForbidden)
 				}
 
 				file, err := os.OpenFile(fmt.Sprintf("%s/%s", directory, path), os.O_RDWR|os.O_CREATE, 0666)
