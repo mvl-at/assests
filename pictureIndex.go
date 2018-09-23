@@ -2,14 +2,13 @@ package assets
 
 import (
 	"encoding/json"
-	"fmt"
 	"os"
 )
 
 const (
 	assetsDir = "assets/"
-	memberDir = assetsDir + "members/"
-	titleDir  = assetsDir + "title/"
+	memberDir = assetsDir + "members"
+	titleDir  = assetsDir + "title"
 	index     = "index.json"
 )
 
@@ -54,7 +53,6 @@ func (a *AssetIndex) save() {
 //returns the filename if a members
 func (a *AssetIndex) getMemberPictureName(id string) string {
 	a.load()
-	fmt.Println(a)
 	return a.Members[id]
 }
 
