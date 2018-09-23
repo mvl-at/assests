@@ -10,6 +10,12 @@ import (
 	"strings"
 )
 
+const (
+	memberRedirect = "/member/"
+	memberPicture  = "/memberPicture/"
+	title          = "/title"
+)
+
 //Runs the http Server.
 func run() {
 	host := fmt.Sprintf("%s:%d", conf.Host, conf.Port)
@@ -23,9 +29,9 @@ func run() {
 
 //Registers all http routes.
 func routes() {
-	http.HandleFunc("/member/", picture(memberPictureRedirectType))
-	http.HandleFunc("/member-pic/", picture(memberPictureType))
-	http.HandleFunc("/title", picture(titlePictureType))
+	http.HandleFunc(memberRedirect, picture(memberPictureRedirectType))
+	http.HandleFunc(memberPicture, picture(memberPictureType))
+	http.HandleFunc(title, picture(titlePictureType))
 }
 
 //Modifies the http header for use with REST.
@@ -40,7 +46,7 @@ func picture(at assetType) http.HandlerFunc {
 		}
 
 		if at == memberPictureRedirectType {
-			http.Redirect(writer, request, "/member-pic/"+getMemberPictureName(path.Base(request.URL.Path)), http.StatusSeeOther)
+			http.Redirect(writer, request, memberPicture+getMemberPictureName(path.Base(request.URL.Path)), http.StatusSeeOther)
 			return
 		}
 

@@ -5,6 +5,17 @@ import (
 	"os"
 )
 
+const (
+	assets  = "assets/"
+	members = assets + "members/"
+	index   = "index.json"
+)
+
+type AssetIndex struct {
+	Members map[string]string `json:"members"`
+	Title   string            `json:"title"`
+}
+
 var pictureIndex = make(map[string]string)
 
 const pictureIndexName = "member-index.json"
@@ -40,19 +51,19 @@ func saveIndex() {
 	encoder.Encode(&pictureIndex)
 }
 
-//returns the filename if a member
+//returns the filename if a members
 func getMemberPictureName(id string) string {
 	loadIndex()
 	return pictureIndex[id]
 }
 
-//saves the filename of a member
+//saves the filename of a members
 func setMemberPictureName(id string, file string) {
 	pictureIndex[id] = file
 	go saveIndex()
 }
 
-//returns the member index
+//returns the members index
 func openIndex() (*os.File, error) {
 	return os.OpenFile(pictureIndexName, os.O_CREATE|os.O_RDWR, 0666)
 }
