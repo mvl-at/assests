@@ -13,7 +13,8 @@ import (
 const (
 	memberRedirect = "/member/"
 	memberPicture  = "/memberPicture/"
-	title          = "/title"
+	titleRedirect  = "/title"
+	titlePicture   = "/titlePicture/"
 )
 
 //Runs the http Server.
@@ -31,7 +32,7 @@ func run() {
 func routes() {
 	http.HandleFunc(memberRedirect, picture(memberPictureRedirectType))
 	http.HandleFunc(memberPicture, picture(memberPictureType))
-	http.HandleFunc(title, picture(titlePictureType))
+	http.HandleFunc(titleRedirect, picture(titlePictureType))
 }
 
 //Modifies the http header for use with REST.
@@ -46,8 +47,12 @@ func picture(at assetType) http.HandlerFunc {
 		}
 
 		if at == memberPictureRedirectType {
-			http.Redirect(writer, request, memberPicture+getMemberPictureName(path.Base(request.URL.Path)), http.StatusSeeOther)
+			http.Redirect(writer, request, memberPicture+assetIndex.getMemberPictureName(path.Base(request.URL.Path)), http.StatusSeeOther)
 			return
+		}
+
+		if at == titlePictureRedirectType {
+			http.Redirect(writer, request, titlePicture+assetIndex.getTitlePictureName(), http.StatusSeeOther)
 		}
 
 		if request.Method == http.MethodGet {

@@ -12,11 +12,11 @@ func find(at assetType, url *url.URL) (*os.File, error) {
 	filename := path.Base(url.Path)
 	switch at {
 	case memberPictureType:
-		directory = members
+		directory = memberDir
 	case titlePictureType:
-		directory = assets
+		directory = titleDir
 	case faviconPictureType:
-		directory = assets
+		directory = assetsDir
 	}
 	return os.OpenFile(fmt.Sprintf("%s/%s", directory, filename), os.O_RDWR|os.O_CREATE, 0666)
 }
