@@ -9,15 +9,16 @@ import (
 )
 
 const (
-	ConfigPath         = "conf.json"
-	memberPictureType  = 1
-	titlePictureType   = 2
-	faviconPictureType = 3
+	ConfigPath = "conf.json"
 )
 
 var logger = log.New(os.Stdout, "", log.Ldate|log.Ltime)
 var errLogger = log.New(os.Stdout, "", log.Ldate|log.Ltime|log.Llongfile)
 var conf = config()
+var memberPictureType = assetType(conf.MemberRole)
+var titlePictureType = assetType(conf.TitleRole)
+var faviconPictureType = assetType(conf.FaviconRole)
+var memberPictureRedirectType = assetType("memberRedirect")
 
 //Reads the config from file and assigns it to the context.Conf
 func config() (conf *Configuration) {
@@ -32,11 +33,12 @@ func config() (conf *Configuration) {
 		jwtSecret := make([]byte, 8)
 		rand.Read(jwtSecret)
 		conf = &Configuration{
-			Host:       "0.0.0.0",
-			Port:       7302,
-			RestHost:   "http://127.0.0.1:8080",
-			TitleRole:  "title",
-			MemberRole: "member"}
+			Host:        "0.0.0.0",
+			Port:        7302,
+			RestHost:    "http://127.0.0.1:8080",
+			TitleRole:   "title",
+			MemberRole:  "member",
+			FaviconRole: "favicon"}
 		enc := json.NewEncoder(fil)
 		enc.SetIndent("", "  ")
 		err = enc.Encode(conf)
@@ -53,11 +55,12 @@ func config() (conf *Configuration) {
 
 //Struct which holds the configuration.
 type Configuration struct {
-	Host       string `json:"host"`
-	Port       uint16 `json:"port"`
-	RestHost   string `json:"restHost"`
-	TitleRole  string `json:"titleRole"`
-	MemberRole string `json:"memberRole"`
+	Host        string `json:"host"`
+	Port        uint16 `json:"port"`
+	RestHost    string `json:"restHost"`
+	TitleRole   string `json:"titleRole"`
+	MemberRole  string `json:"memberRole"`
+	FaviconRole string `json:"faviconRole"`
 }
 
-type assetType int64
+type assetType string

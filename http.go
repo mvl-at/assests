@@ -6,7 +6,7 @@ import (
 	"github.com/mvl-at/model"
 	"io"
 	"net/http"
-	"os"
+	"path"
 	"strings"
 )
 
@@ -23,7 +23,8 @@ func run() {
 
 //Registers all http routes.
 func routes() {
-	http.HandleFunc("/member/", picture(memberPictureType))
+	http.HandleFunc("/member/", picture(memberPictureRedirectType))
+	http.HandleFunc("/member-pic/", picture(memberPictureType))
 	http.HandleFunc("/title", picture(titlePictureType))
 }
 
@@ -35,6 +36,11 @@ func picture(at assetType) http.HandlerFunc {
 		if request.Method == http.MethodOptions {
 			writer.Header().Set("Access-Control-Allow-Methods", "GET,POST,PUT,DELETE,OPTIONS")
 			writer.Header().Set("Access-Control-Allow-Headers", "access-token,content-type")
+			return
+		}
+
+		if at == memberPictureRedirectType {
+			http.Redirect(writer, request, "/member-pic/"+getMemberPictureName(path.Base(request.URL.Path)), http.StatusSeeOther)
 			return
 		}
 
@@ -51,35 +57,19 @@ func picture(at assetType) http.HandlerFunc {
 		if request.Method == http.MethodPost {
 			jwt := request.Header.Get("access-token")
 
-			if hasRole(fetchRoles(jwt), conf.TitleRole) {
-				var directory string
-				var path string
-
-				switch at {
-				case memberPictureType:
-					if hasRole(fetchRoles(jwt), conf.MemberRole) {
-						directory = "."
-						path = request.URL.Path
-					}
-					break
-				case titlePictureType:
-					if hasRole(fetchRoles(jwt), conf.TitleRole) {
-						directory = "."
-						path = "title"
-					}
-					break
-				default:
-					writer.WriteHeader(http.StatusForbidden)
-				}
-
-				file, err := os.OpenFile(fmt.Sprintf("%s/%s", directory, path), os.O_RDWR|os.O_CREATE, 0666)
-				if err != nil {
-					errLogger.Println(err.Error())
-					return
-				}
-				defer file.Close()
-				io.Copy(file, request.Body)
+			roles := fetchRoles(jwt)
+			if !hasRole(roles, at) {
+				writer.WriteHeader(http.StatusForbidden)
+				return
 			}
+
+			file, err := find(at, request.URL)
+			if err != nil {
+				errLogger.Println(err.Error())
+				return
+			}
+			defer file.Close()
+			io.Copy(file, request.Body)
 		}
 	}
 }
@@ -111,9 +101,9 @@ func fetchRoles(jwt string) []model.Role {
 	return userInfo.Roles
 }
 
-func hasRole(roles []model.Role, role string) bool {
+func hasRole(roles []model.Role, at assetType) bool {
 	for _, v := range roles {
-		if strings.ToLower(role) == strings.ToLower(v.Id) || strings.ToLower(v.Id) == "root" {
+		if strings.ToLower(string(at)) == strings.ToLower(v.Id) || strings.ToLower(v.Id) == "root" {
 			return true
 		}
 	}

@@ -22,7 +22,7 @@ func loadIndex() {
 	stat, _ := file.Stat()
 	if stat.ModTime().Unix() > lastUpdate {
 		decoder := json.NewDecoder(file)
-		decoder.Decode(pictureIndex)
+		decoder.Decode(&pictureIndex)
 		lastUpdate = stat.ModTime().Unix()
 	}
 }
@@ -37,7 +37,7 @@ func saveIndex() {
 	defer file.Close()
 	encoder := json.NewEncoder(file)
 	encoder.SetIndent("", "  ")
-	encoder.Encode(pictureIndex)
+	encoder.Encode(&pictureIndex)
 }
 
 //returns the filename if a member
