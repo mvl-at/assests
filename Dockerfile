@@ -14,7 +14,7 @@ RUN go install -ldflags '-s -w' ./cmd/assserve
 
 # ---
 
-FROM alpine
+FROM scratch
 COPY --from=build /go/bin/assserve /assets
 WORKDIR /assets-data
 VOLUME  /assets-data
