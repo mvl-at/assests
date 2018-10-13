@@ -36,10 +36,10 @@ func config() (conf *Configuration) {
 		conf = &Configuration{
 			Host:        "0.0.0.0",
 			Port:        7302,
-			RestHost:    "http://127.0.0.1:8080",
-			TitleRole:   "title",
+			RestHost:    "http://127.0.0.1:7301",
+			TitleRole:   "preferences",
 			MemberRole:  "member",
-			FaviconRole: "favicon"}
+			FaviconRole: "preferences"}
 		enc := json.NewEncoder(fil)
 		enc.SetIndent("", "  ")
 		err = enc.Encode(conf)
