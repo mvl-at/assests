@@ -7,6 +7,7 @@ import (
 	"io"
 	"net/http"
 	"path"
+	"strconv"
 	"strings"
 )
 
@@ -46,17 +47,17 @@ func picture(at assetType) http.HandlerFunc {
 			return
 		}
 
-		if at == memberPictureRedirectType {
-			http.Redirect(writer, request, memberPicture+assetIndex.getMemberPictureName(path.Base(request.URL.Path)), http.StatusSeeOther)
-			return
-		}
-
-		if at == titlePictureRedirectType {
-			http.Redirect(writer, request, titlePicture+assetIndex.getTitlePictureName(), http.StatusSeeOther)
-		}
-
 		if request.Method == http.MethodGet {
-			picture, err := find(at, request.URL)
+			if at == memberPictureRedirectType {
+				http.Redirect(writer, request, memberPicture+assetIndex.getMemberPictureName(path.Base(request.URL.Path)), http.StatusSeeOther)
+				return
+			}
+
+			if at == titlePictureRedirectType {
+				http.Redirect(writer, request, titlePicture+assetIndex.getTitlePictureName(), http.StatusSeeOther)
+				return
+			}
+			picture, err := findByUrl(at, request.URL)
 			defer picture.Close()
 			if err != nil {
 				writer.WriteHeader(http.StatusNotFound)
@@ -74,7 +75,16 @@ func picture(at assetType) http.HandlerFunc {
 				return
 			}
 
-			file, err := find(at, request.URL)
+			var filename string
+			var persistAssetType assetType
+
+			if at == memberPictureRedirectType {
+				id, _ := strconv.ParseInt(path.Base(request.URL.Path), 10, 64)
+				filename = fetchUsername(id) + dateSuffix()
+				persistAssetType = memberPictureType
+				assetIndex.setMemberPictureName(path.Base(request.URL.Path), filename)
+			}
+			file, err := find(persistAssetType, filename)
 			if err != nil {
 				errLogger.Println(err.Error())
 				return
@@ -83,6 +93,23 @@ func picture(at assetType) http.HandlerFunc {
 			io.Copy(file, request.Body)
 		}
 	}
+}
+
+func fetchUsername(id int64) string {
+	resp, err := http.Get(conf.RestHost + "/members")
+	if err != nil {
+		errLogger.Println(err.Error())
+		return ""
+	}
+	decoder := json.NewDecoder(resp.Body)
+	members := make([]model.Member, 0)
+	decoder.Decode(&members)
+	for _, member := range members {
+		if member.Id == id {
+			return member.Username
+		}
+	}
+	return ""
 }
 
 func fetchRoles(jwt string) []model.Role {

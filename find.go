@@ -5,11 +5,16 @@ import (
 	"net/url"
 	"os"
 	"path"
+	"time"
 )
 
-func find(at assetType, url *url.URL) (*os.File, error) {
-	var directory string
+func findByUrl(at assetType, url *url.URL) (*os.File, error) {
 	filename := path.Base(url.Path)
+	return find(at, filename)
+}
+
+func find(at assetType, filename string) (*os.File, error) {
+	var directory string
 	switch at {
 	case memberPictureType:
 		directory = memberDir
@@ -19,4 +24,8 @@ func find(at assetType, url *url.URL) (*os.File, error) {
 		directory = assetsDir
 	}
 	return os.OpenFile(fmt.Sprintf("%s/%s", directory, filename), os.O_RDWR|os.O_CREATE, 0666)
+}
+
+func dateSuffix() string {
+	return time.Now().Format("_2006-01-02-03-04-05")
 }
