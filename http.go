@@ -33,7 +33,8 @@ func run() {
 func routes() {
 	http.HandleFunc(memberRedirect, picture(memberPictureRedirectType))
 	http.HandleFunc(memberPicture, picture(memberPictureType))
-	http.HandleFunc(titleRedirect, picture(titlePictureType))
+	http.HandleFunc(titleRedirect, picture(titlePictureRedirectType))
+	http.HandleFunc(titlePicture, picture(titlePictureType))
 }
 
 //Modifies the http header for use with REST.
@@ -83,6 +84,11 @@ func picture(at assetType) http.HandlerFunc {
 				filename = fetchUsername(id) + dateSuffix()
 				persistAssetType = memberPictureType
 				assetIndex.setMemberPictureName(path.Base(request.URL.Path), filename)
+			}
+			if at == titlePictureRedirectType {
+				filename = "title" + dateSuffix()
+				persistAssetType = titlePictureType
+				assetIndex.setTitlePictureName(filename)
 			}
 			file, err := find(persistAssetType, filename)
 			if err != nil {
