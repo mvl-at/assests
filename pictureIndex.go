@@ -56,6 +56,12 @@ func (a *AssetIndex) getMemberPictureName(id string) string {
 	return a.Members[id]
 }
 
+//checks if a member has a picture
+func (a *AssetIndex) memberHasPicture(id string) bool {
+	a.load()
+	return a.Members[id] != ""
+}
+
 //saves the filename of a members
 func (a *AssetIndex) setMemberPictureName(id string, file string) {
 	a.Members[id] = file

@@ -50,6 +50,12 @@ func picture(at assetType) http.HandlerFunc {
 
 		if request.Method == http.MethodGet {
 			if at == memberPictureRedirectType {
+
+				if !assetIndex.memberHasPicture(path.Base(request.URL.Path)) {
+					writer.WriteHeader(http.StatusNotFound)
+					return
+				}
+
 				http.Redirect(writer, request, memberPicture+assetIndex.getMemberPictureName(path.Base(request.URL.Path)), http.StatusSeeOther)
 				return
 			}
