@@ -6,9 +6,8 @@ import (
 )
 
 const (
-	assetsDir = "assets/"
-	memberDir = assetsDir + "members"
-	titleDir  = assetsDir + "title"
+	memberDir = "members"
+	titleDir  = "title"
 	index     = "index.json"
 )
 
@@ -87,7 +86,7 @@ func (a *AssetIndex) openIndex() (*os.File, error) {
 
 //load the default assets file
 func loadAssesIndex() *AssetIndex {
-	index := &AssetIndex{fileName: index, lastUpdate: 0}
+	index := &AssetIndex{fileName: index, lastUpdate: 0, Members: make(map[string]string)}
 	index.load()
 	return index
 }

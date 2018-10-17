@@ -21,11 +21,11 @@ func find(at assetType, filename string) (*os.File, error) {
 	case titlePictureType:
 		directory = titleDir
 	case faviconPictureType:
-		directory = assetsDir
+		directory = "."
 	}
 	return os.OpenFile(fmt.Sprintf("%s/%s", directory, filename), os.O_RDWR|os.O_CREATE, 0666)
 }
 
 func dateSuffix() string {
-	return time.Now().Format("_2006-01-02-03-04-05")
+	return time.Now().Format("_2006-01-02-15-04-05")
 }

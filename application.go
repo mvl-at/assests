@@ -9,6 +9,6 @@ func Setup() {
 }
 
 func tree() {
-	os.MkdirAll("assets/members", os.ModeDir)
-	os.MkdirAll("assets/title", os.ModeDir)
+	os.MkdirAll("members", os.ModeDir)
+	os.MkdirAll("title", os.ModeDir)
 }
