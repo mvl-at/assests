@@ -70,6 +70,10 @@ func picture(at assetType) http.HandlerFunc {
 				http.Redirect(writer, request, titlePicture+pictureName, http.StatusSeeOther)
 				return
 			}
+
+			if at == defaultTitleType {
+				json.NewEncoder(writer).Encode(assetIndex.getIsDefaultTitle())
+			}
 			picture, err := findByUrl(at, request.URL)
 			defer picture.Close()
 			if err != nil {
