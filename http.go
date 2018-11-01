@@ -16,6 +16,7 @@ const (
 	memberPicture  = "/memberPicture/"
 	titleRedirect  = "/title"
 	titlePicture   = "/titlePicture/"
+	defaultTitle   = "/defaultTitle"
 )
 
 //Runs the http Server.
@@ -35,6 +36,7 @@ func routes() {
 	http.HandleFunc(memberPicture, picture(memberPictureType))
 	http.HandleFunc(titleRedirect, picture(titlePictureRedirectType))
 	http.HandleFunc(titlePicture, picture(titlePictureType))
+	http.HandleFunc(defaultTitle, picture(defaultTitle))
 }
 
 //Modifies the http header for use with REST.
@@ -61,7 +63,11 @@ func picture(at assetType) http.HandlerFunc {
 			}
 
 			if at == titlePictureRedirectType {
-				http.Redirect(writer, request, titlePicture+assetIndex.getTitlePictureName(), http.StatusSeeOther)
+				pictureName := assetIndex.getTitlePictureName()
+				if assetIndex.getIsDefaultTitle() {
+					pictureName = assetIndex.getDefaultTitlePictureName()
+				}
+				http.Redirect(writer, request, titlePicture+pictureName, http.StatusSeeOther)
 				return
 			}
 			picture, err := findByUrl(at, request.URL)
@@ -85,6 +91,17 @@ func picture(at assetType) http.HandlerFunc {
 			var filename string
 			var persistAssetType assetType
 
+			if at == defaultTitleType {
+				switch strings.ToLower(request.URL.Query().Get("default")) {
+				case "true":
+					assetIndex.setIsDefaultTitle(true)
+				case "false":
+					assetIndex.setIsDefaultTitle(false)
+				default:
+					writer.WriteHeader(http.StatusUnprocessableEntity)
+				}
+				return
+			}
 			if at == memberPictureRedirectType {
 				id, _ := strconv.ParseInt(path.Base(request.URL.Path), 10, 64)
 				filename = fetchUsername(id) + dateSuffix()
@@ -94,7 +111,11 @@ func picture(at assetType) http.HandlerFunc {
 			if at == titlePictureRedirectType {
 				filename = "title" + dateSuffix()
 				persistAssetType = titlePictureType
-				assetIndex.setTitlePictureName(filename)
+				if request.URL.Query().Get("default") == "true" {
+					assetIndex.setDefaultTitlePictureName(filename)
+				} else {
+					assetIndex.setTitlePictureName(filename)
+				}
 			}
 			file, err := find(persistAssetType, filename)
 			if err != nil {

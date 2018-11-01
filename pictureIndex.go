@@ -14,10 +14,12 @@ const (
 var assetIndex = loadAssesIndex()
 
 type AssetIndex struct {
-	Members    map[string]string `json:"members"`
-	Title      string            `json:"title"`
-	lastUpdate int64             `json:"-"`
-	fileName   string            `json:"-"`
+	Members        map[string]string `json:"members"`
+	Title          string            `json:"title"`
+	DefaultTitle   string            `json:"defaultTitle"`
+	IsDefaultTitle bool              `json:"isDefaultTitle"`
+	lastUpdate     int64             `json:"-"`
+	fileName       string            `json:"-"`
 }
 
 //loads filenames from disk if necessary
@@ -76,6 +78,30 @@ func (a *AssetIndex) getTitlePictureName() string {
 //saves the filename of the title picture
 func (a *AssetIndex) setTitlePictureName(file string) {
 	assetIndex.Title = file
+	go a.save()
+}
+
+//returns the filename of the default title picture
+func (a *AssetIndex) getDefaultTitlePictureName() string {
+	a.load()
+	return assetIndex.DefaultTitle
+}
+
+//saves the filename of the default title picture
+func (a *AssetIndex) setDefaultTitlePictureName(file string) {
+	assetIndex.DefaultTitle = file
+	go a.save()
+}
+
+//returns if the title picture is currently the default one
+func (a *AssetIndex) getIsDefaultTitle() bool {
+	a.load()
+	return a.IsDefaultTitle
+}
+
+//sets if the title picture is currently the default one
+func (a *AssetIndex) setIsDefaultTitle(isDefault bool) {
+	a.IsDefaultTitle = isDefault
 	go a.save()
 }
 

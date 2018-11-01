@@ -20,6 +20,7 @@ var titlePictureType = assetType(conf.TitleRole)
 var faviconPictureType = assetType(conf.FaviconRole)
 var memberPictureRedirectType = assetType("memberRedirect")
 var titlePictureRedirectType = assetType("titleRedirect")
+var defaultTitleType = assetType("defaultTitle")
 
 //Reads the config from file and assigns it to the context.Conf
 func config() (conf *Configuration) {
