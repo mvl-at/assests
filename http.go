@@ -36,7 +36,7 @@ func routes() {
 	http.HandleFunc(memberPicture, picture(memberPictureType))
 	http.HandleFunc(titleRedirect, picture(titlePictureRedirectType))
 	http.HandleFunc(titlePicture, picture(titlePictureType))
-	http.HandleFunc(defaultTitle, picture(defaultTitle))
+	http.HandleFunc(defaultTitle, picture(defaultTitleType))
 }
 
 //Modifies the http header for use with REST.
@@ -72,7 +72,10 @@ func picture(at assetType) http.HandlerFunc {
 			}
 
 			if at == defaultTitleType {
-				json.NewEncoder(writer).Encode(assetIndex.getIsDefaultTitle())
+				err := json.NewEncoder(writer).Encode(assetIndex.getIsDefaultTitle())
+				if err != nil {
+					errLogger.Println(err.Error())
+				}
 			}
 			picture, err := findByUrl(at, request.URL)
 			defer picture.Close()
@@ -96,14 +99,13 @@ func picture(at assetType) http.HandlerFunc {
 			var persistAssetType assetType
 
 			if at == defaultTitleType {
-				switch strings.ToLower(request.URL.Query().Get("default")) {
-				case "true":
-					assetIndex.setIsDefaultTitle(true)
-				case "false":
-					assetIndex.setIsDefaultTitle(false)
-				default:
-					writer.WriteHeader(http.StatusUnprocessableEntity)
+				var isDefault bool
+				err := json.NewDecoder(request.Body).Decode(&isDefault)
+				if err != nil {
+					errLogger.Println(err.Error())
+					return
 				}
+				assetIndex.setIsDefaultTitle(isDefault)
 				return
 			}
 			if at == memberPictureRedirectType {
