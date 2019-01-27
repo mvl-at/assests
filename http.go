@@ -1,10 +1,16 @@
 package assets
 
 import (
+	"bytes"
 	"encoding/json"
 	"fmt"
 	"github.com/mvl-at/model"
+	"github.com/nfnt/resize"
+	"image"
+	"image/jpeg"
+	"image/png"
 	"io"
+	"io/ioutil"
 	"net/http"
 	"path"
 	"strconv"
@@ -67,6 +73,9 @@ func picture(at assetType) http.HandlerFunc {
 				if assetIndex.getIsDefaultTitle() {
 					pictureName = assetIndex.getDefaultTitlePictureName()
 				}
+				if request.URL.Query().Get("thumb") == "true" {
+					pictureName += "-thumb"
+				}
 				http.Redirect(writer, request, titlePicture+pictureName, http.StatusSeeOther)
 				return
 			}
@@ -122,6 +131,30 @@ func picture(at assetType) http.HandlerFunc {
 				} else {
 					assetIndex.setTitlePictureName(filename)
 				}
+				data, err := ioutil.ReadAll(request.Body)
+				if err != nil {
+					errLogger.Println(err.Error())
+					return
+				}
+				img, typ, err := image.Decode(bytes.NewReader(data))
+				if err != nil {
+					errLogger.Printf("%s occured when trying to resize %s", err.Error(), typ)
+					return
+				}
+				resized := resize.Resize(0, 500, img, resize.Bicubic)
+				resizedFile, err := find(persistAssetType, filename+"-thumb")
+				switch typ {
+				case "jpeg":
+					err = jpeg.Encode(resizedFile, resized, &jpeg.Options{Quality: 100})
+				case "png":
+					err = png.Encode(resizedFile, resized)
+				default:
+					errLogger.Printf("image type %s is not supported", typ)
+				}
+				if err != nil {
+					errLogger.Println(err.Error())
+				}
+				request.Body = ioutil.NopCloser(bytes.NewReader(data))
 			}
 			file, err := find(persistAssetType, filename)
 			if err != nil {
