@@ -12,10 +12,13 @@ COPY . /go/src/github.com/mvl-at/assets
 RUN go get ./...
 RUN go install -ldflags '-s -w' ./cmd/assserve
 
-# ---
+FROM alpine AS certs
+RUN apk update && apk add ca-certificates && update-ca-certificates
 
 FROM scratch
 COPY --from=build /go/bin/assserve /assets
+COPY --from=certs /etc/ssl/ /etc/ssl/
+COPY --from=certs /usr/share/ca-certificates/ /usr/share/ca-certificates/
 WORKDIR /assets-data
 VOLUME  /assets-data
 EXPOSE  7302
